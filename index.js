@@ -1,3 +1,7 @@
+function EventType(name) {
+    this.name = name;
+}
+
 function Event(name, magnitude) {
     this.name = name;
     this.magnitude = magnitude;
@@ -72,16 +76,32 @@ function EventAdder(div, container) {
     };
 }
 
+function DataStore() {
+    var types = [new EventType('derp')];
+
+    this.getEventTypes = function() {
+        return types;
+    };
+
+    this.createEventType = function(type) {
+        console.log("createing type: " + type);
+        types.push(type);
+    };
+
+    this.createEvent = function(event) {
+        console.log("creating event: " + event);
+    };
+}
+
 function EventContainer(container) {
-    var events = [new Event('derp')];
+    var store = new DataStore();
     var adder = new EventAdder(container, this);
     var magSelector = new MagnitudeSelector(container, this);
     var addButton = $(container).find("#add-button");
     var list = $(container).find('#events-list');
     
-    this.addEvent = function(event) {
-        console.log("pushing: " + event);
-        events.push(event);
+    this.addEvent = function(type) {
+        store.createEventType(type);
         render();
     };
     
@@ -92,15 +112,15 @@ function EventContainer(container) {
     
     function render() {
         list.html('');
-        events.forEach(function(event) {
-            console.log('event: ' + event);
+        store.getEventTypes().forEach(function(type) {
+            console.log('rendering event type: ' + type);
             list.append($('<div>')
                         .addClass('event-type')
-                        .html(event.name)
+                        .html(type.name)
                         .click(function() {
-                            magSelector.select(event.name, function(mag) {
-                                var logged = new Event(event.name, mag);
-                                console.log(logged);
+                            magSelector.select(type.name, function(mag) {
+                                var event = new Event(type.name, mag);
+                                store.createEvent(event);
                             })
                         })
                        );
