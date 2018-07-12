@@ -6,17 +6,6 @@ function Event(name, magnitude) {
     };
 }
 
-function EventAdder(div, container) {
-    var form = $(div).find('form')
-    var input = form.find('input');
-    form.submit(function(e) {
-        console.log('adding: ' + input.val());
-        container.addEvent(new Event(input.val()));
-        e.preventDefault();
-        return false;
-    });
-}
-
 function MagnitudeSelector(div, container) {
     var k = null;
     var selectorDiv = $(div).find("#magnitude-selector");
@@ -41,10 +30,53 @@ function MagnitudeSelector(div, container) {
     }());
 }
 
+function EventAdder(div, container) {
+    var addDiv = $(div).find('#event-adder');
+    var form = $(div).find('#adder');
+    var input = form.find('input');
+    var cancelButton = form.find('.cancel');
+    var self = this;
+
+    this.show = function() {
+        addDiv.show();
+        input.select();
+    };
+
+    this.hide = function() {
+        addDiv.hide();
+    };
+
+    this.addEvent = function() {
+        var name = input.val();
+        var event = new Event(name);
+        container.addEvent(event);
+        self.hide();
+        input.val('');
+    };
+
+    (function init() {
+        form.submit(onSubmit);
+        cancelButton.click(onCancel);
+    }());
+
+    function onCancel(clickEvent) {
+        clickEvent.preventDefault();
+        self.hide();
+        return false;
+    };
+
+    function onSubmit(submitEvent) {
+        submitEvent.preventDefault();
+        self.addEvent();
+        return false;
+    };
+}
+
 function EventContainer(container) {
     var events = [new Event('derp')];
     var adder = new EventAdder(container, this);
     var magSelector = new MagnitudeSelector(container, this);
+    var addButton = $(container).find("#add-button");
     var list = $(container).find('#events-list');
     
     this.addEvent = function(event) {
@@ -54,6 +86,7 @@ function EventContainer(container) {
     };
     
     (function init() {
+        addButton.click(adder.show);
         render();
     }());
     

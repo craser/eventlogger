@@ -2,16 +2,14 @@
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="index.js"> </script>
+        <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet"> 
         <link rel="stylesheet" href="index.css" />
     </head>
     <body>
         <div id="root">
-            <form id="adder">
-                <input id="new-event-name" type="text" />
-            </form>
             <div id="events-list">
             </div>
-            <div id="magnitude-selector" style="display: none">
+            <div id="magnitude-selector" class="modal">
                 <div class="event-name"></div>
                 <div class="magnitude">1</div>
                 <div class="magnitude">2</div>
@@ -19,6 +17,15 @@
                 <div class="magnitude">4</div>
                 <div class="magnitude">5</div>
                 <div class="cancel">cancel</div>
+            </div>
+            <div id="event-adder" class="modal">
+                <form id="adder">
+                    <input id="new-event-name" type="text" autocomplete="off" />
+                    <button class="add">add</button><button class="cancel">cancel</button>
+                </form>
+            </div>
+            <div id="add-button">
+                +
             </div>
         </div>
     </body>
