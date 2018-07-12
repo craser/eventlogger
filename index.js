@@ -1,5 +1,8 @@
 function EventType(name) {
     this.name = name;
+    this.toString = function() {
+        return JSON.stringify(this);
+    };
 }
 
 function Event(name, magnitude) {
@@ -80,16 +83,23 @@ function DataStore() {
     var types = [new EventType('derp')];
 
     this.getEventTypes = function() {
-        return types;
+        return new Promise((k, ek) => {
+            k(types);
+        });
     };
 
     this.createEventType = function(type) {
         console.log("createing type: " + type);
-        types.push(type);
+        return new Promise((k, ek) => {
+            types.push(type);
+            k(type);
+        });
     };
 
     this.createEvent = function(event) {
-        console.log("creating event: " + event);
+        return new Promise((k, ek) => {
+            console.log("creating event: " + event);
+        });
     };
 }
 
@@ -101,8 +111,8 @@ function EventContainer(container) {
     var list = $(container).find('#events-list');
     
     this.addEvent = function(type) {
-        store.createEventType(type);
-        render();
+        store.createEventType(type)
+            .then(renderType);
     };
     
     (function init() {
@@ -112,19 +122,28 @@ function EventContainer(container) {
     
     function render() {
         list.html('');
-        store.getEventTypes().forEach(function(type) {
-            console.log('rendering event type: ' + type);
-            list.append($('<div>')
-                        .addClass('event-type')
-                        .html(type.name)
-                        .click(function() {
-                            magSelector.select(type.name, function(mag) {
-                                var event = new Event(type.name, mag);
-                                store.createEvent(event);
-                            })
-                        })
-                       );
-        });
+        store.getEventTypes()
+            .then((types) => {
+                types.forEach(renderType)
+            });
+    }
+    
+
+    function renderType(type) {
+        console.log('rendering event type: ' + type);
+        list.append($('<div>')
+                    .addClass('event-type')
+                    .html(type.name)
+                    .click(selectMagnitude(type))
+                   );
+    }
+
+    function selectMagnitude(type) {
+        return function() {
+            magSelector.select(type.name, function(mag) {
+                store.createEvent(new Event(type.name, mag));
+            });
+        };
     }
 }
 
