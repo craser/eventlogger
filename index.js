@@ -80,18 +80,28 @@ function EventAdder(div, container) {
 }
 
 function DataStore() {
-    var types = [new EventType('derp')];
-
+    var store = localStorage;
+    
     this.getEventTypes = function() {
         return new Promise((k, ek) => {
+            var types = get('types');
             k(types);
+        });
+    };
+
+    this.getEvents = function() {
+        return new Promise((k, ek) => {
+            var events = get('events');
+            k(events);
         });
     };
 
     this.createEventType = function(type) {
         console.log("createing type: " + type);
         return new Promise((k, ek) => {
+            var types = get('types');
             types.push(type);
+            put('types', types);
             k(type);
         });
     };
@@ -99,8 +109,33 @@ function DataStore() {
     this.createEvent = function(event) {
         return new Promise((k, ek) => {
             console.log("creating event: " + event);
+            var events = get('events');
+            events.push(event);
+            put('events', events);
+            k(event);
         });
     };
+
+    function get(key) {
+        if (!store.getItem(key)) {
+            return null;
+        }
+        else {
+            var json = store.getItem(key);
+            var obj = JSON.parse(json);
+            return obj;
+        }
+    }
+
+    function put(key, val) {
+        var json = JSON.stringify(val);
+        store.setItem(key, json);
+    }                     
+
+    (function init() {
+        get('events') || put('events', []);
+        get('types') || put('types', []);
+    }());
 }
 
 function EventContainer(container) {
